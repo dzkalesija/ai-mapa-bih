@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mapa BiH 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        .selectable-card { transition: all 0.3s ease; border: 2px solid transparent; cursor: pointer; }
+        .selectable-card.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full glass p-8 md:p-12 rounded-[2rem] shadow-2xl">
+        
+        <div class="flex gap-2 mb-10">
+            <div id="p1" class="h-1.5 flex-1 bg-blue-600 rounded-full"></div>
+            <div id="p2" class="h-1.5 flex-1 bg-slate-800 rounded-full"></div>
+            <div id="p3" class="h-1.5 flex-1 bg-slate-800 rounded-full"></div>
+        </div>
+
+        <form id="aiSurvey">
+            <div class="step active" id="step1">
+                <h1 class="text-3xl font-extrabold mb-2">Demografski profil 🇧🇦</h1>
+                <p class="text-slate-400 mb-8">Zvanično istraživanje o AI pismenosti u BiH.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Regija</label>
+                        <select id="entitet" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-700 outline-none focus:border-blue-500" required>
+                            <option value="">Odaberi...</option>
+                            <option value="Federacija_BiH">Federacija BiH</option>
+                            <option value="Republika_Srpska">Republika Srpska</option>
+                            <option value="Brcko_Distrikt">Brčko Distrikt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Općina</label>
+                        <select id="opcina" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-700 outline-none" disabled required>
+                            <option value="">Prvo regija...</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Vaša struka</label>
+                        <select id="struka" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-700 outline-none">
+                            <option>Tehnologija / IT</option>
+                            <option>Umjetnost i Dizajn</option>
+                            <option>Ekonomija i Biznis</option>
+                            <option>Obrazovanje</option>
+                            <option>Zdravstvo</option>
+                            <option>Administracija / Pravo</option>
+                            <option>Drugo</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step2">
+                <h1 class="text-3xl font-extrabold mb-2">AI Arsenal 🛠️</h1>
+                <p class="text-slate-400 mb-8">Šta od navedenog koristite u radu?</p>
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="selectable-card p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center" onclick="toggleCard(this, 'koristi_tekst')">
+                        <div class="text-2xl mb-1">✍️</div><div class="text-sm font-bold">Tekst</div>
+                    </div>
+                    <div class="selectable-card p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center" onclick="toggleCard(this, 'koristi_slike')">
+                        <div class="text-2xl mb-1">🎨</div><div class="text-sm font-bold">Umjetnost</div>
+                    </div>
+                    <div class="selectable-card p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center" onclick="toggleCard(this, 'koristi_kod')">
+                        <div class="text-2xl mb-1">💻</div><div class="text-sm font-bold">Kodiranje</div>
+                    </div>
+                    <div class="selectable-card p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center" onclick="toggleCard(this, 'koristi_video')">
+                        <div class="text-2xl mb-1">🎬</div><div class="text-sm font-bold">Video</div>
+                    </div>
+                </div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Nedjeljna ušteda vremena (sati)</label>
+                <input type="range" id="ustedjeno_vrijeme" min="0" max="100" value="10" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                <div class="text-blue-400 font-bold mt-2" id="timeVal">10h</div>
+            </div>
+
+            <div class="step" id="step3">
+                <h1 class="text-3xl font-extrabold mb-2">Etika i Budućnost 🔮</h1>
+                <p class="text-slate-400 mb-8">Završite istraživanje vašim stavovima.</p>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Strah od AI (1-10)</label>
+                        <input type="range" id="strah_faktor" min="1" max="10" value="5" class="w-full h-2 bg-slate-700 appearance-none cursor-pointer accent-red-500">
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-blue-900/20 rounded-2xl border border-blue-500/30">
+                        <span class="text-sm font-bold">Plaćate li AI pretplatu?</span>
+                        <input type="checkbox" id="placa_pretplatu" class="w-6 h-6 accent-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 flex justify-between gap-4">
+                <button type="button" id="backBtn" class="hidden flex-1 p-4 rounded-2xl bg-slate-800 font-bold hover:bg-slate-700 transition">Nazad</button>
+                <button type="button" id="nextBtn" class="flex-[2] p-4 rounded-2xl bg-blue-600 font-bold hover:bg-blue-500 transition shadow-lg">Nastavi</button>
+                <button type="submit" id="submitBtn" class="hidden flex-[2] p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 font-bold transition shadow-xl">Završi</button>
+            </div>
+        </form>
+
+        <div id="finishScreen" class="hidden text-center py-12">
+            <h2 class="text-4xl font-black mb-2 uppercase">Hvala Vam!</h2>
+            <p class="text-slate-400 mb-8 font-bold">Vaš AI IQ rezultat:</p>
+            <div class="text-7xl font-black text-blue-500" id="finalIQ">0</div>
+        </div>
+    </div>
+
+    <script>
+        const opcine = {
+            "Federacija_BiH": ["Banovići", "Bihać", "Bosanska Krupa", "Bosanski Petrovac", "Bosansko Grahovo", "Breza", "Bugojno", "Busovača", "Bužim", "Cazin", "Čapljina", "Čelić", "Čitluk", "Doboj Istok", "Doboj Jug", "Dobretići", "Domaljevac-Šamac", "Donji Vakuf", "Drvar", "Foča-Ustikolina", "Fojnica", "Glamoč", "Goražde", "Gornji Vakuf-Uskoplje", "Gračanica", "Gradačac", "Grude", "Hadžići", "Ilidža", "Ilijaš", "Jablanica", "Jajce", "Kakanj", "Kalesija", "Kiseljak", "Kladanj", "Ključ", "Konjic", "Kupres", "Livno", "Lukavac", "Ljubuški", "Maglaj", "Mostar", "Neum", "Novi Grad Sarajevo", "Novo Sarajevo", "Novi Travnik", "Odžak", "Olovo", "Orašje", "Pale-Prača", "Posušje", "Prozor-Rama", "Ravno", "Sanski Most", "Sapna", "Sarajevo-Centar", "Srebrenik", "Stari Grad Sarajevo", "Stolac", "Tešanj", "Tomislavgrad", "Travnik", "Trnovo (FBiH)", "Tuzla", "Usora", "Vareš", "Velika Kladuša", "Visoko", "Vitez", "Vogošća", "Zavidovići", "Zenica", "Žepče", "Živinice"],
+            "Republika_Srpska": ["Banja Luka", "Berkovići", "Bijeljina", "Bileća", "Bratunac", "Brod", "Čajniče", "Čelinac", "Derventa", "Doboj", "Donji Žabar", "Foča", "Gacko", "Gradiška", "Han Pijesak", "Istočna Ilidža", "Istočni Drvar", "Istočni Mostar", "Istočni Stari Grad", "Istočno Novo Sarajevo", "Jezero", "Kalinovik", "Kneževo", "Kostajnica", "Kotor Varoš", "Kozarska Dubica", "Krupa na Uni", "Kupres (RS)", "Laktaši", "Lopare", "Ljubinje", "Milići", "Modriča", "Mrkonjić Grad", "Nevesinje", "Novi Grad", "Novo Goražde", "Osmaci", "Oštra Luka", "Pale", "Pelagićevo", "Petrovac", "Petrovo", "Prijedor", "Prnjavor", "Ribnik", "Rogatica", "Rudo", "Sokolac", "Srbac", "Srebrenica", "Stanari", "Šamac", "Šekovići", "Šipovo", "Teslić", "Trebinje", "Trnovo (RS)", "Ugljevik", "Višegrad", "Vlasenica", "Vukosavlje", "Zvornik"],
+            "Brcko_Distrikt": ["Brčko Distrikt BiH"]
+        };
+
+        let currentStep = 1;
+        let selectedAlati = { koristi_tekst: false, koristi_slike: false, koristi_kod: false, koristi_video: false };
+
+        document.getElementById('entitet').addEventListener('change', (e) => {
+            const o = document.getElementById('opcina');
+            o.innerHTML = '<option value="">Izaberi općinu...</option>';
+            if(e.target.value) {
+                o.disabled = false;
+                opcine[e.target.value].sort().forEach(g => {
+                    let opt = document.createElement('option'); opt.value = g; opt.text = g; o.add(opt);
+                });
+            }
+        });
+
+        function toggleCard(el, key) {
+            selectedAlati[key] = !selectedAlati[key];
+            el.classList.toggle('selected');
+        }
+
+        document.getElementById('ustedjeno_vrijeme').addEventListener('input', (e) => {
+            document.getElementById('timeVal').innerText = e.target.value + 'h';
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            document.getElementById('step'+currentStep).classList.remove('active');
+            currentStep++;
+            document.getElementById('step'+currentStep).classList.add('active');
+            updateUI();
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            document.getElementById('step'+currentStep).classList.remove('active');
+            currentStep--;
+            document.getElementById('step'+currentStep).classList.add('active');
+            updateUI();
+        });
+
+        function updateUI() {
+            document.getElementById('backBtn').classList.toggle('hidden', currentStep === 1);
+            document.getElementById('nextBtn').classList.toggle('hidden', currentStep === 3);
+            document.getElementById('submitBtn').classList.toggle('hidden', currentStep !== 3);
+            document.getElementById('p2').style.background = currentStep >= 2 ? '#2563eb' : '#1e293b';
+            document.getElementById('p3').style.background = currentStep >= 3 ? '#2563eb' : '#1e293b';
+        }
+
+        document.getElementById('aiSurvey').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                entitet: document.getElementById('entitet').value,
+                opcina: document.getElementById('opcina').value,
+                struka: document.getElementById('struka').value,
+                obrazovanje: "VSS/SSS",
+                koristi_tekst: selectedAlati.koristi_tekst,
+                koristi_slike: selectedAlati.koristi_slike,
+                koristi_kod: selectedAlati.koristi_kod,
+                koristi_video: selectedAlati.koristi_video,
+                frekvencija: "Redovno",
+                ustedjeno_vrijeme: parseInt(document.getElementById('ustedjeno_vrijeme').value),
+                placa_pretplatu: document.getElementById('placa_pretplatu').checked,
+                vjeruje_odgovorima: 3,
+                strah_faktor: parseInt(document.getElementById('strah_faktor').value)
+            };
+            const res = await fetch('http://127.0.0.1:8000/submit-survey', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            document.getElementById('aiSurvey').classList.add('hidden');
+            document.getElementById('finishScreen').classList.remove('hidden');
+            document.getElementById('finalIQ').innerText = Math.round(result.score);
+        });
+    </script>
+</body>
+</html>
