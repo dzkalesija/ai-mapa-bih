@@ -3,37 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mapa BiH - Nacionalni Monitor</title>
+    <title>AI Monitor BiH - Nacionalno Istraživanje</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; font-weight: 300; }
+        body { background-color: #0b1120; color: #e2e8f0; font-family: 'Inter', sans-serif; font-weight: 200; }
         .step { display: none; }
-        .step.active { display: block; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-        .selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.15); }
-        .btn-glow { transition: all 0.3s; background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
-        .btn-glow:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -8px #3b82f6; }
-        select, input { font-weight: 400; }
+        .glass { background: rgba(30, 41, 59, 0.3); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+        .option-card { border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer; }
+        .selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.1) !important; color: #60a5fa; }
+        select { font-weight: 300 !important; cursor: pointer; }
+        input[type="checkbox"] { display: none; }
     </style>
 </head>
-<body class="p-4 md:p-12 min-h-screen flex items-center">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-4xl mx-auto card p-8 md:p-14 rounded-[2.5rem] shadow-2xl w-full">
-        <header class="text-center mb-16">
-            <h1 class="text-3xl font-light tracking-[0.15em] text-blue-400 uppercase">AI Monitor Bosne i Hercegovine</h1>
-            <div class="h-px w-24 bg-blue-500/30 mx-auto mt-4"></div>
+    <div class="max-w-4xl w-full glass p-8 md:p-14 rounded-[2.5rem] shadow-2xl">
+        <header class="text-center mb-12">
+            <h1 class="text-2xl font-light tracking-[0.4em] text-blue-400 uppercase">AI Monitor BiH</h1>
+            <p class="text-[9px] text-slate-500 uppercase tracking-[0.3em] mt-4">Nacionalna platforma za digitalnu analitiku</p>
         </header>
 
-        <form id="aiSurvey">
+        <form id="monitorForm">
             <div class="step active" id="step1">
-                <h2 class="text-sm uppercase tracking-[0.3em] text-slate-500 mb-10 italic">01. Profiliranje ispitanika</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-3 ml-2">Regija / Entitet</label>
-                        <select id="entitet" onchange="azurirajOpcine()" class="w-full bg-slate-900/80 border border-slate-700 p-4 rounded-2xl outline-none focus:border-blue-500 transition-colors">
+                        <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-2 block">Regija / Entitet</label>
+                        <select id="entitet" onchange="fillOpcine()" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl outline-none focus:border-blue-500 text-xs">
                             <option value="">Odaberi...</option>
                             <option value="FBiH">Federacija BiH</option>
                             <option value="RS">Republika Srpska</option>
@@ -41,149 +39,151 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-3 ml-2">Lokalna zajednica</label>
-                        <select id="opcina" class="w-full bg-slate-900/80 border border-slate-700 p-4 rounded-2xl outline-none focus:border-blue-500 transition-colors">
-                            <option value="">Prvo odaberi entitet...</option>
+                        <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-2 block">Općina / Grad</label>
+                        <select id="opcina" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl outline-none text-xs">
+                            <option value="">Prvo odaberi regiju...</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="mb-12">
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-3 ml-2">Sektor djelovanja</label>
-                    <select id="struka" onchange="pokaziPut()" class="w-full bg-slate-900/80 border border-slate-700 p-4 rounded-2xl outline-none text-blue-300">
+                <div class="mb-10">
+                    <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-2 block">Sektor djelovanja</label>
+                    <select id="sektor" onchange="pokaziPitanja()" class="w-full bg-slate-900/60 border border-slate-800 p-4 rounded-xl outline-none text-blue-300 text-xs">
                         <option value="">Odaberi sektor...</option>
+                        <option value="akademska">Visoko obrazovanje / Akademska zajednica</option>
+                        <option value="omladina">Osnovno i Srednje obrazovanje</option>
                         <option value="zdravstvo">Zdravstvo i Medicina</option>
-                        <option value="it_sektor">IT i Tehnološki sektor</option>
-                        <option value="obrazovanje">Obrazovanje i Nauka</option>
-                        <option value="poljoprivreda">Poljoprivreda i Šumarstvo</option>
-                        <option value="industrija">Industrija i Proizvodnja</option>
-                        <option value="turizam">Turizam i Ugostiteljstvo</option>
-                        <option value="trgovina">Trgovina i Marketing</option>
-                        <option value="javna_uprava">Javna uprava i Socijalni sektor</option>
-                        <option value="transport">Transport i Logistika</option>
-                        <option value="student">Studenti i Mladi</option>
+                        <option value="javna_uprava">Javna uprava i Pravosuđe</option>
+                        <option value="privreda">Privreda, Proizvodnja i Industrija</option>
+                        <option value="trgovina">Trgovina, Marketing i Turizam</option>
+                        <option value="it_sport">IT, Mediji i Sport</option>
                     </select>
                 </div>
-
-                <button type="button" onclick="nextStep(2)" class="w-full btn-glow p-5 rounded-2xl font-semibold uppercase tracking-[0.2em] text-xs">Nastavi</button>
+                <button type="button" onclick="next(2)" class="w-full bg-blue-600/60 hover:bg-blue-600 p-5 rounded-xl text-[10px] font-semibold uppercase tracking-[0.2em] transition-all">Nastavi na analizu</button>
             </div>
 
             <div class="step" id="step2">
-                <h2 class="text-sm uppercase tracking-[0.3em] text-slate-500 mb-10 italic">02. Vertikalna primjena AI</h2>
-                <div id="dinamicki_sadrzaj" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-10"></div>
-                <button type="button" onclick="nextStep(3)" class="w-full btn-glow p-5 rounded-2xl font-semibold uppercase tracking-[0.2em] text-xs">Analiza alata</button>
+                <h3 id="sektor_naslov" class="text-[11px] uppercase tracking-widest text-blue-400 mb-8 italic">Pitanja</h3>
+                <div id="pitanja_container" class="grid grid-cols-1 gap-2 mb-10"></div>
+                <button type="button" onclick="next(3)" class="w-full bg-blue-600/60 p-5 rounded-xl text-[10px] font-semibold uppercase tracking-[0.2em]">Sljedeći korak</button>
             </div>
 
             <div class="step" id="step3">
-                <h2 class="text-sm uppercase tracking-[0.3em] text-slate-500 mb-10 italic">03. Tehnološki stog i uštede</h2>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10" id="alati_grid"></div>
+                <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-6 block">Korišteni AI Alati</label>
+                <div id="alati_grid" class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-10"></div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 text-xs">
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-4">Ušteda vremena kroz AI</label>
-                        <select id="usteda" class="w-full bg-slate-900/80 border border-slate-700 p-4 rounded-2xl outline-none">
-                            <option value="10">Minimalna (do 10%)</option>
-                            <option value="30">Srednja (10% - 40%)</option>
-                            <option value="60">Visoka (40% - 70%)</option>
-                            <option value="90">Ekstremna (preko 70%)</option>
-                        </select>
+                        <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-4 block italic">Ušteda vremena kroz AI</label>
+                        <input type="range" id="usteda" min="0" max="100" value="10" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <div class="text-center mt-3 text-blue-400 font-light"><span id="usteda_val">10</span>%</div>
                     </div>
                     <div>
-                        <label class="block text-[10px] uppercase tracking-widest text-slate-400 mb-4">Percepcija uticaja</label>
-                        <div class="flex gap-4">
-                            <label class="flex-1 bg-slate-900/80 border border-slate-700 p-4 rounded-2xl cursor-pointer text-[10px] flex items-center uppercase tracking-widest">
-                                <input type="radio" name="ocekivanje" value="Pozitivan" checked class="mr-3"> Optimizam
+                        <label class="text-[9px] uppercase tracking-widest text-slate-500 mb-4 block italic">Vaš stav prema AI</label>
+                        <div class="flex gap-2">
+                            <label class="flex-1 text-center p-3 border border-slate-800 rounded-xl cursor-pointer text-[9px] uppercase tracking-widest hover:border-blue-500 transition-colors">
+                                <input type="radio" name="stav" value="Pozitivan" checked> Optimizam
                             </label>
-                            <label class="flex-1 bg-slate-900/80 border border-slate-700 p-4 rounded-2xl cursor-pointer text-[10px] flex items-center uppercase tracking-widest">
-                                <input type="radio" name="ocekivanje" value="Negativan" class="mr-3"> Oprez
+                            <label class="flex-1 text-center p-3 border border-slate-800 rounded-xl cursor-pointer text-[9px] uppercase tracking-widest hover:border-blue-500 transition-colors">
+                                <input type="radio" name="stav" value="Oprez"> Oprez
                             </label>
                         </div>
                     </div>
                 </div>
-
-                <button type="button" id="submitBtn" onclick="submitData()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-6 rounded-[2rem] font-bold uppercase tracking-[0.3em] transition-all text-xs shadow-lg shadow-emerald-900/20">
-                    Finaliziraj unos
-                </button>
+                <button type="button" onclick="posalji()" id="submitBtn" class="w-full bg-emerald-600/60 hover:bg-emerald-600 p-6 rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] transition-all">Pošalji i izračunaj IDA</button>
             </div>
 
             <div class="step text-center" id="step4">
-                <div class="mb-8 opacity-30 italic uppercase tracking-[0.4em] text-[10px]">Indeks Digitalne Adaptacije (IDA)</div>
-                <h1 class="text-8xl font-light text-blue-400 mb-6" id="iq_score">0</h1>
-                <p class="text-slate-500 uppercase text-[10px] tracking-[0.2em] mb-16 italic" id="hvala_msg"></p>
-                <button type="button" onclick="location.reload()" class="text-slate-400 hover:text-white border-b border-slate-800 pb-1 text-[10px] uppercase tracking-widest transition-colors">Nova sesija</button>
+                <p class="text-[10px] uppercase tracking-[0.4em] text-slate-500 mb-6 italic">Indeks Digitalne Adaptacije (IDA)</p>
+                <h1 id="score_val" class="text-9xl font-thin text-blue-400 mb-12">0</h1>
+                <button type="button" onclick="location.reload()" class="text-slate-600 hover:text-white border-b border-slate-800 pb-1 text-[9px] uppercase tracking-[0.2em] transition-colors">Nova Analiza</button>
             </div>
         </form>
     </div>
 
     <script>
+        // KOMPLETNA LISTA SVIH OPCINA U BIH
         const opcineBiH = {
             "FBiH": ["Banovići", "Bihać", "Bosanska Krupa", "Bosanski Petrovac", "Bosansko Grahovo", "Breza", "Bugojno", "Busovača", "Bužim", "Cazin", "Čapljina", "Čelić", "Čitluk", "Drvar", "Doboj Istok", "Doboj Jug", "Dobretići", "Domaljevac-Šamac", "Donji Vakuf", "Foča-Ustikolina", "Fojnica", "Glamoč", "Goražde", "Gornji Vakuf-Uskoplje", "Gračanica", "Gradačac", "Grude", "Hadžići", "Ilijaš", "Jablanica", "Jajce", "Kakanj", "Kalesija", "Kiseljak", "Kladanj", "Ključ", "Konjic", "Kupres", "Livno", "Ljubuški", "Lukavac", "Maglaj", "Mostar", "Neum", "Novi Travnik", "Odžak", "Olovo", "Orašje", "Pale-Prača", "Posušje", "Prozor-Rama", "Ravno", "Sanski Most", "Sapna", "Sarajevo-Centar", "Sarajevo-Novi Grad", "Sarajevo-Novo Sarajevo", "Sarajevo-Stari Grad", "Stolac", "Srebrenik", "Tešanj", "Tomislavgrad", "Travnik", "Trnovo", "Tuzla", "Usora", "Vareš", "Velika Kladuša", "Visoko", "Vitez", "Vogošća", "Zavidovići", "Zenica", "Žepče", "Živinice"],
             "RS": ["Banja Luka", "Berkovići", "Bijeljina", "Bileća", "Bratunac", "Brod", "Čajniče", "Čelinac", "Derventa", "Doboj", "Donji Žabar", "Foča", "Gacko", "Gradiška", "Han Pijesak", "Istočna Ilidža", "Istočni Drvar", "Istočni Mostar", "Istočni Stari Grad", "Istočno Novo Sarajevo", "Jezero", "Kalinovik", "Kneževo", "Kostajnica", "Kotor Varoš", "Kozarska Dubica", "Krupa na Uni", "Kupres", "Laktaši", "Lopare", "Ljubinje", "Milići", "Modriča", "Mrkonjić Grad", "Nevesinje", "Novi Grad", "Novo Goražde", "Osmaci", "Oštra Luka", "Pale", "Pelagićevo", "Petrovac", "Petrovo", "Prijedor", "Prnjavor", "Ribnik", "Rogatica", "Rudo", "Sokolac", "Srbac", "Srebrenica", "Stanari", "Šamac", "Šekovići", "Šipovo", "Teslić", "Trebinje", "Trnovo", "Ugljevik", "Višegrad", "Vlasenica", "Vukosavlje", "Zvornik"],
             "BD": ["Brčko Distrikt"]
         };
 
-        function azurirajOpcine() {
+        const sektorskaPitanja = {
+            "akademska": ["Analiza naučne literature i istraživanja", "Pisanje i struktuiranje akademskih radova", "Statistička obrada podataka i kodiranje", "Simulacija kompleksnih naučnih scenarija", "Personalizovano mentorstvo za studente"],
+            "omladina": ["Pomoć pri rješavanju školskih zadaća", "Objašnjavanje lekcija i pojmova", "Priprema za maturu i prijemne ispite", "Učenje stranih jezika kroz konverzaciju", "Generisanje ideja za projekte i eseje"],
+            "zdravstvo": ["Analiza medicinskih nalaza i snimaka", "Automatizacija izvještaja i dijagnoza", "Personalizacija terapije i lijekova", "Trijaža i praćenje stanja pacijenata", "Istraživanje novih medicinskih studija"],
+            "javna_uprava": ["Automatizacija odgovora građanima", "Obrada i klasifikacija dokumenata", "Pretraga sudske prakse i zakona", "Kreiranje nacrta odluka i ugovora", "Analiza budžeta i javnih nabavki"],
+            "privreda": ["Prediktivno održavanje mašina", "Kontrola kvaliteta (Computer Vision)", "Optimizacija potrošnje i logistike", "Dizajn proizvoda i prototipizacija", "Upravljanje lancem snabdijevanja"],
+            "trgovina": ["Analiza navika kupaca i preporuke", "Dinamičko određivanje cijena", "Generisanje prodajnog i vizuelnog sadržaja", "Chatbot korisnička podrška 24/7", "Personalizovani turistički itinereri"],
+            "it_sport": ["Generisanje i debugiranje koda", "Analiza sportske statistike i biometrije", "Automatizacija video montaže i dizajna", "Predviđanje sportskih povreda", "Lokalizacija i titlovanje sadržaja"]
+        };
+
+        const alati = ["ChatGPT", "Claude", "Gemini", "DeepSeek", "Midjourney", "Perplexity", "Copilot", "Canva", "Sora", "ElevenLabs"];
+
+        function fillOpcine() {
             const e = document.getElementById('entitet').value;
-            const s = document.getElementById('opcina');
-            s.innerHTML = '<option value="">Odaberi općinu...</option>';
-            if(e && opcineBiH[e]) opcineBiH[e].sort().forEach(o => s.innerHTML += `<option value="${o}">${o}</option>`);
+            const o = document.getElementById('opcina');
+            o.innerHTML = '<option value="">Odaberi općinu...</option>';
+            if(e && opcineBiH[e]) opcineBiH[e].sort().forEach(x => o.innerHTML += `<option value="${x}">${x}</option>`);
         }
 
-        const alati = ["ChatGPT", "DeepSeek", "Claude AI", "Gemini", "Midjourney", "DALL-E 3", "Copilot", "Perplexity", "Sora", "ElevenLabs", "Canva AI", "Cursor"];
-        let odabraniAlati = [];
-        alati.forEach(a => {
-            const d = document.createElement('div');
-            d.className = "p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-[9px] text-center cursor-pointer transition-all uppercase tracking-widest font-medium";
-            d.innerText = a;
-            d.onclick = function() { this.classList.toggle('selected'); if(odabraniAlati.includes(a)) odabraniAlati = odabraniAlati.filter(x=>x!==a); else odabraniAlati.push(a); };
-            document.getElementById('alati_grid').appendChild(d);
-        });
-
-        function pokaziPut() {
-            const s = document.getElementById('struka').value;
-            const k = document.getElementById('dinamicki_sadrzaj');
-            k.innerHTML = '';
-            let opcije = [];
-            
-            if(s === 'zdravstvo') opcije = ["Dijagnostika (AI slikovna)", "Analiza medicinskih podataka", "Personalizovano liječenje", "Automatizacija administracije"];
-            else if(s === 'poljoprivreda') opcije = ["Precizna poljoprivreda", "Predviđanje prinosa", "Detekcija bolesti biljaka", "Sistemi navodnjavanja"];
-            else if(s === 'industrija') opcije = ["Prediktivno održavanje", "Optimizacija lanca snabdijevanja", "Kontrola kvaliteta", "Energetska efikasnost"];
-            else if(s === 'turizam') opcije = ["Personalizovane ponude", "Chatbot vodiči", "Analiza recenzija", "Dinamičke cijene"];
-            else if(s === 'it_sektor') opcije = ["Generisanje koda", "Arhitektura sistema", "Sajber sigurnost", "Automatizacija testova"];
-            else if(s === 'javna_uprava') opcije = ["Digitalni servisi", "Socijalno mapiranje", "Automatizacija dokumenata", "Analiza javnog mnijenja"];
-            else opcije = ["Analiza tržišta", "Copywriting", "Pretraga informacija", "Kreativna vizuelizacija"];
-
-            opcije.forEach(o => {
-                k.innerHTML += `<label class="flex items-center p-4 bg-slate-900/40 border border-slate-800 rounded-2xl cursor-pointer hover:bg-slate-800/50 text-[10px] tracking-widest uppercase transition-colors">
-                    <input type="checkbox" name="spec" value="${o}" class="mr-4 accent-blue-500"> ${o}
-                </label>`;
-            });
+        function pokaziPitanja() {
+            const s = document.getElementById('sektor').value;
+            const c = document.getElementById('pitanja_container');
+            const h = document.getElementById('sektor_naslov');
+            c.innerHTML = '';
+            if(s && sektorskaPitanja[s]) {
+                h.innerText = document.getElementById('sektor').options[document.getElementById('sektor').selectedIndex].text;
+                sektorskaPitanja[s].forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = "option-card p-4 rounded-xl text-[9px] uppercase tracking-widest flex items-center bg-slate-900/40";
+                    div.innerHTML = `<input type="checkbox" name="odgovor" value="${p}" onchange="toggleCard(this)"> <span class="ml-3">${p}</span>`;
+                    div.onclick = () => div.querySelector('input').click();
+                    c.appendChild(div);
+                });
+            }
         }
 
-        function nextStep(s) {
+        function toggleCard(cb) { cb.parentElement.classList.toggle('selected', cb.checked); }
+
+        function next(s) {
             document.querySelectorAll('.step').forEach(x => x.classList.remove('active'));
-            document.getElementById('step'+s).classList.add('active');
-            window.scrollTo(0,0);
+            document.getElementById('step' + s).classList.add('active');
+            if(s === 3 && document.getElementById('alati_grid').innerHTML === '') {
+                alati.forEach(a => {
+                    const div = document.createElement('div');
+                    div.className = "option-card p-3 rounded-lg text-[8px] text-center uppercase tracking-tighter bg-slate-900/40";
+                    div.innerText = a;
+                    div.onclick = function() { this.classList.toggle('selected'); };
+                    document.getElementById('alati_grid').appendChild(div);
+                });
+            }
         }
 
-        async function submitData() {
+        document.getElementById('usteda').oninput = function() { document.getElementById('usteda_val').innerText = this.value; }
+
+        async function posalji() {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerText = "SINKRONIZACIJA...";
 
-            const ustedaVal = parseInt(document.getElementById('usteda').value);
-            let score = 40 + (ustedaVal * 0.3) + (odabraniAlati.length * 3.5);
+            const selectedAlati = Array.from(document.querySelectorAll('#alati_grid .selected')).map(x => x.innerText);
+            const selectedOdgovori = Array.from(document.querySelectorAll('input[name="odgovor"]:checked')).map(x => x.value);
+            const usteda = parseInt(document.getElementById('usteda').value);
             
+            let score = 30 + (selectedOdgovori.length * 7) + (selectedAlati.length * 3) + (usteda * 0.2);
+            score = Math.min(score, 100).toFixed(1);
+
             const data = {
                 entitet: document.getElementById('entitet').value,
                 opcina: document.getElementById('opcina').value,
-                struka: document.getElementById('struka').options[document.getElementById('struka').selectedIndex].text,
-                specificni_odgovori: Array.from(document.querySelectorAll('input[name="spec"]:checked')).map(x=>x.value).join(", "),
-                alati: odabraniAlati.join(", "),
-                ustedjeno_vrijeme: ustedaVal,
-                uticaj_na_posao: document.querySelector('input[name="ocekivanje"]:checked').value,
-                ai_iq_score: Math.min(score, 100).toFixed(1)
+                sektor: document.getElementById('sektor').options[document.getElementById('sektor').selectedIndex].text,
+                odgovori: selectedOdgovori.join(", "),
+                alati: selectedAlati.join(", "),
+                usteda: usteda,
+                stav: document.querySelector('input[name="stav"]:checked').value,
+                score: parseFloat(score)
             };
 
             try {
@@ -192,13 +192,12 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                document.getElementById('iq_score').innerText = data.ai_iq_score;
-                document.getElementById('hvala_msg').innerText = `Procesirano za lokalitet ${data.opcina}`;
-                nextStep(4);
+                document.getElementById('score_val').innerText = score;
+                next(4);
             } catch (e) {
-                alert("Mrežni prekid. Pokušajte ponovo.");
+                alert("Mrežna greška. Pokušajte ponovo.");
                 btn.disabled = false;
-                btn.innerText = "POKUŠAJ PONOVNO";
+                btn.innerText = "POKUŠAJ PONOVO";
             }
         }
     </script>
