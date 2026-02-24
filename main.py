@@ -3,38 +3,36 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from pydantic import BaseModel
-from typing import List
+import os
 
 # DATABASE SETUP
-# Koristimo check_same_thread=False jer SQLite i FastAPI rade u više threadova
-SQLALCHEMY_DATABASE_URL = "sqlite:///./ai_monitor_bih.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./ai_monitor_final.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# MODEL BAZE PODATAKA (SQLAlchemy)
+# MODEL BAZE - Mora imati pod_sektor
 class SurveyEntry(Base):
-    __tablename__ = "istrazivanje_final" # Promijenili smo ime da se baza automatski rekreira sa novim kolonama
+    __tablename__ = "istrazivanje_v12" # Promjena imena kreira svježu tabelu
     id = Column(Integer, primary_key=True, index=True)
     entitet = Column(String)
     opcina = Column(String)
     sektor = Column(String)
-    pod_sektor = Column(String)  # KLJUČNO: Dodata podrška za pod-sektore
-    odgovori = Column(Text)       # Detaljna pitanja
+    pod_sektor = Column(String)
+    odgovori = Column(Text)
     alati = Column(String)
     usteda = Column(Integer)
     stav = Column(String)
     score = Column(Float)
 
-# Kreiranje tabela
 Base.metadata.create_all(bind=engine)
 
-# PYDANTIC SCHEMAS (Za validaciju dolaznih podataka)
+# SCHEMAS
 class SurveyCreate(BaseModel):
     entitet: str
     opcina: str
     sektor: str
-    pod_sektor: str  # Mora se podudarati sa index.html
+    pod_sektor: str
     odgovori: str
     alati: str
     usteda: int
@@ -43,7 +41,7 @@ class SurveyCreate(BaseModel):
 
 app = FastAPI()
 
-# CORS POSTAVKE (Dozvoli pristup sa tvog GitHub-a ili lokalnog računara)
+# CORS - Dozvoljava index.html i admin.html komunikaciju
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -52,7 +50,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency za bazu
 def get_db():
     db = SessionLocal()
     try:
@@ -60,42 +57,28 @@ def get_db():
     finally:
         db.close()
 
-# RUTA ZA UPIS PODATAKA (Iz index.html)
+@app.get("/")
+def read_root():
+    return {"status": "Online", "version": "2.0.DeepSector"}
+
 @app.post("/submit-survey")
 async def create_entry(survey: SurveyCreate, db: Session = Depends(get_db)):
     try:
-        db_entry = SurveyEntry(
-            entitet=survey.entitet,
-            opcina=survey.opcina,
-            sektor=survey.sektor,
-            pod_sektor=survey.pod_sektor,
-            odgovori=survey.odgovori,
-            alati=survey.alati,
-            usteda=survey.usteda,
-            stav=survey.stav,
-            score=survey.score
-        )
+        db_entry = SurveyEntry(**survey.dict())
         db.add(db_entry)
         db.commit()
         db.refresh(db_entry)
         return {"status": "success", "id": db_entry.id}
     except Exception as e:
         db.rollback()
+        print(f"ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# RUTA ZA ADMIN PANEL (Iz admin.html)
 @app.get("/admin-all")
-async def get_all_entries(db: Session = Depends(get_db)):
-    entries = db.query(SurveyEntry).all()
-    return entries
-
-# ROOT RUTA (Za provjeru da li server radi)
-@app.get("/")
-def home():
-    return {"message": "AI Monitor BiH API je online"}
+async def get_all(db: Session = Depends(get_db)):
+    return db.query(SurveyEntry).all()
 
 if __name__ == "__main__":
     import uvicorn
-    import os
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
