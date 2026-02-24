@@ -5,15 +5,16 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from pydantic import BaseModel
 import os
 
-# DATABASE SETUP
-SQLALCHEMY_DATABASE_URL = "sqlite:///./ai_monitor_final.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+# TVOJ POSTGRES URL
+DB_URL = "postgresql://ai_monitor_db_1ehj_user:nTFVcK3Shj025wspUuOiGoMaPeTRCHwf@dpg-d6eqrb3h46gs73e9dr60-a.frankfurt-postgres.render.com/ai_monitor_db_1ehj"
+
+engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# MODEL BAZE - Mora imati pod_sektor
+# DEFINICIJA TABELE
 class SurveyEntry(Base):
-    __tablename__ = "istrazivanje_v12" # Promjena imena kreira svježu tabelu
+    __tablename__ = "istrazivanje_trajno_final"
     id = Column(Integer, primary_key=True, index=True)
     entitet = Column(String)
     opcina = Column(String)
@@ -25,9 +26,10 @@ class SurveyEntry(Base):
     stav = Column(String)
     score = Column(Float)
 
+# Kreiranje tabele na Postgresu odmah pri pokretanju
 Base.metadata.create_all(bind=engine)
 
-# SCHEMAS
+# VALIDACIJA PODATAKA
 class SurveyCreate(BaseModel):
     entitet: str
     opcina: str
@@ -41,7 +43,7 @@ class SurveyCreate(BaseModel):
 
 app = FastAPI()
 
-# CORS - Dozvoljava index.html i admin.html komunikaciju
+# DOZVOLA PRISTUPA (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -58,8 +60,8 @@ def get_db():
         db.close()
 
 @app.get("/")
-def read_root():
-    return {"status": "Online", "version": "2.0.DeepSector"}
+def home():
+    return {"status": "Online", "database": "PostgreSQL Frankfurt Connected"}
 
 @app.post("/submit-survey")
 async def create_entry(survey: SurveyCreate, db: Session = Depends(get_db)):
@@ -71,12 +73,12 @@ async def create_entry(survey: SurveyCreate, db: Session = Depends(get_db)):
         return {"status": "success", "id": db_entry.id}
     except Exception as e:
         db.rollback()
-        print(f"ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/admin-all")
 async def get_all(db: Session = Depends(get_db)):
-    return db.query(SurveyEntry).all()
+    # Vraća sve unose poredane tako da najnoviji bude prvi
+    return db.query(SurveyEntry).order_by(SurveyEntry.id.desc()).all()
 
 if __name__ == "__main__":
     import uvicorn
