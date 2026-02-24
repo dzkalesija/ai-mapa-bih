@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, Text
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
@@ -25,10 +25,11 @@ class SurveyEntry(Base):
     placa_pretplatu = Column(Boolean, default=False)
     uticaj_na_posao = Column(String)
     ai_iq_score = Column(Float)
+    ip_adresa = Column(String, nullable=True) # NOVO: Čuvanje IP adrese
 
 Base.metadata.create_all(bind=engine)
 
-# Pydantic Schemas - Postavljeno kao Optional da frontend ne bi pucao
+# Pydantic Schemas
 class SurveyCreate(BaseModel):
     entitet: str
     opcina: str
@@ -43,7 +44,6 @@ class SurveyCreate(BaseModel):
 
 app = FastAPI()
 
-# CORS postavke su ključne da Render dozvoli tvojoj stranici slanje podataka
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -61,17 +61,26 @@ def get_db():
 
 @app.get("/")
 def home():
-    return {"status": "AI Mapa BiH Backend V3.0 Aktivan"}
+    return {"status": "AI Mapa BiH Backend V3.0 Aktivan", "message": "Sistem spreman za prijem podataka"}
 
 @app.post("/submit-survey")
-def submit_survey(entry: SurveyCreate, db: Session = Depends(get_db)):
+async def submit_survey(entry: SurveyCreate, request: Request, db: Session = Depends(get_db)):
     try:
-        # Pretvaramo Pydantic model u rječnik i kreiramo unos u bazi
-        db_entry = SurveyEntry(**entry.dict())
+        # Uzimanje IP adrese pošiljaoca
+        client_ip = request.headers.get("x-forwarded-for") or request.client.host
+        
+        db_entry = SurveyEntry(
+            **entry.dict(),
+            ip_adresa=client_ip
+        )
         db.add(db_entry)
         db.commit()
         db.refresh(db_entry)
-        return {"status": "success", "ai_iq": entry.ai_iq_score}
+        return {"status": "success", "id": db_entry.id}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin-all")
+def get_all(db: Session = Depends(get_db)):
+    return db.query(SurveyEntry).all()
