@@ -19,31 +19,32 @@ class SurveyEntry(Base):
     entitet = Column(String)
     opcina = Column(String)
     struka = Column(String)
-    pod_struka = Column(String) # Specifični put (npr. Srednja škola)
-    specificni_odgovori = Column(Text) # Čuva predmete, alate, mašine kao text
-    alati = Column(String) # ChatGPT, DeepSeek, etc.
+    pod_struka = Column(String, nullable=True) 
+    specificni_odgovori = Column(Text, nullable=True) 
+    alati = Column(String) 
     ustedjeno_vrijeme = Column(Integer)
-    placa_pretplatu = Column(Boolean)
+    placa_pretplatu = Column(Boolean, default=False)
     uticaj_na_posao = Column(String)
     ai_iq_score = Column(Float)
 
 Base.metadata.create_all(bind=engine)
 
-# Pydantic Schemas
+# Pydantic Schemas - Ovdje smo dodali default vrijednosti da ne puca ako frontend ne pošalje polje
 class SurveyCreate(BaseModel):
     entitet: str
     opcina: str
     struka: str
-    pod_struka: Optional[str] = ""
+    pod_struka: Optional[str] = "Nije navedeno"
     specificni_odgovori: Optional[str] = ""
     alati: str
     ustedjeno_vrijeme: int
-    placa_pretplatu: bool
+    placa_pretplatu: Optional[bool] = False
     uticaj_na_posao: str
     ai_iq_score: float
 
 app = FastAPI()
 
+# CORS je ispravno postavljen
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -65,11 +66,15 @@ def home():
 
 @app.post("/submit-survey")
 def submit_survey(entry: SurveyCreate, db: Session = Depends(get_db)):
-    db_entry = SurveyEntry(**entry.dict())
-    db.add(db_entry)
-    db.commit()
-    db.refresh(db_entry)
-    return {"status": "success", "ai_iq": entry.ai_iq_score}
+    try:
+        db_entry = SurveyEntry(**entry.dict())
+        db.add(db_entry)
+        db.commit()
+        db.refresh(db_entry)
+        return {"status": "success", "ai_iq": entry.ai_iq_score}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/admin-all")
 def get_all(db: Session = Depends(get_db)):
