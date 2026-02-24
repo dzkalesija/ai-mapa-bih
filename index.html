@@ -12,7 +12,9 @@
         .step.active { display: block; animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .selected { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.2); }
-        input[type="range"]::-webkit-slider-thumb { border-radius: 50%; background: #3b82f6; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { border-radius: 50%; background: #3b82f6; cursor: pointer; appearance: none; width: 18px; height: 18px; }
+        .animate-spin-slow { animation: spin 2s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-4 md:p-10 flex flex-col min-h-screen">
@@ -106,12 +108,14 @@
                     </select>
                 </div>
 
-                <button type="button" id="submitBtn" onclick="submitData()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl">Pošalji podatke i izračunaj IDA</button>
+                <button type="button" id="submitBtn" onclick="submitData()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl flex items-center justify-center">
+                    <span>Pošalji podatke i izračunaj IDA</span>
+                </button>
             </div>
 
             <div class="step text-center" id="step4">
                 <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <span class="text-4xl italic font-black">IDA</span>
+                    <span class="text-4xl italic font-black text-blue-400">IDA</span>
                 </div>
                 <h1 class="text-3xl font-bold mb-2 uppercase">Indeks Adaptacije</h1>
                 <div class="text-7xl font-black text-blue-500 mb-8" id="iq_score">0</div>
@@ -124,10 +128,11 @@
     </div>
 
     <footer class="mt-10 text-center text-[9px] text-slate-600 uppercase tracking-[0.4em] pb-10">
-        <p>Istraživački projekat: <span class="text-slate-400 font-bold underline">NACIONALNI AI MONITOR BiH</span></p>
+        <p>Istraživački projekat: <span class="text-slate-400 font-bold underline italic uppercase">Nacionalni AI monitor BiH</span></p>
     </footer>
 
     <script>
+        // --- DATA & CONFIG ---
         const opcineBiH = {
             "FBiH": ["Banovići", "Bihać", "Bosanska Krupa", "Bosanski Petrovac", "Bosansko Grahovo", "Breza", "Bugojno", "Busovača", "Bužim", "Cazin", "Čapljina", "Čelić", "Čitluk", "Drvar", "Doboj Istok", "Doboj Jug", "Dobretići", "Domaljevac-Šamac", "Donji Vakuf", "Foča-Ustikolina", "Fojnica", "Glamoč", "Goražde", "Gornji Vakuf-Uskoplje", "Gračanica", "Gradačac", "Grude", "Hadžići", "Ilijaš", "Jablanica", "Jajce", "Kakanj", "Kalesija", "Kiseljak", "Kladanj", "Ključ", "Konjic", "Kupres", "Livno", "Ljubuški", "Lukavac", "Maglaj", "Mostar", "Neum", "Novi Travnik", "Odžak", "Olovo", "Orašje", "Pale-Prača", "Posušje", "Prozor-Rama", "Ravno", "Sanski Most", "Sapna", "Sarajevo-Centar", "Sarajevo-Novi Grad", "Sarajevo-Novo Sarajevo", "Sarajevo-Stari Grad", "Stolac", "Srebrenik", "Tešanj", "Tomislavgrad", "Travnik", "Trnovo", "Tuzla", "Usora", "Vareš", "Velika Kladuša", "Visoko", "Vitez", "Vogošća", "Zavidovići", "Zenica", "Žepče", "Živinice"],
             "RS": ["Banja Luka", "Berkovići", "Bijeljina", "Bileća", "Bratunac", "Brod", "Čajniče", "Čelinac", "Derventa", "Doboj", "Donji Žabar", "Foča", "Gacko", "Gradiška", "Han Pijesak", "Istočna Ilidža", "Istočni Drvar", "Istočni Mostar", "Istočni Stari Grad", "Istočno Novo Sarajevo", "Jezero", "Kalinovik", "Kneževo", "Kostajnica", "Kotor Varoš", "Kozarska Dubica", "Krupa na Uni", "Kupres", "Laktaši", "Lopare", "Ljubinje", "Milići", "Modriča", "Mrkonjić Grad", "Nevesinje", "Novi Grad", "Novo Goražde", "Osmaci", "Oštra Luka", "Pale", "Pelagićevo", "Petrovac", "Petrovo", "Prijedor", "Prnjavor", "Ribnik", "Rogatica", "Rudo", "Sokolac", "Srbac", "Srebrenica", "Stanari", "Šamac", "Šekovići", "Šipovo", "Teslić", "Trebinje", "Trnovo", "Ugljevik", "Višegrad", "Vlasenica", "Vukosavlje", "Zvornik"],
@@ -186,8 +191,9 @@
             window.scrollTo(0,0);
         }
 
+        // --- SUBMIT LOGIC WITH RETRY & LOADER ---
         async function submitData() {
-            // ANTI-DUPLIKAT ZAŠTITA
+            // 1. Provjera da li je anketa već poslana sa ovog uređaja
             if(localStorage.getItem('anketa_sent')) {
                 alert("Sistem je detektovao da ste već popunili anketu. Hvala na učešću!");
                 return;
@@ -195,13 +201,20 @@
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "Slanje podataka...";
+            // Dodajemo spinner u dugme
+            btn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                BUĐENJE SERVERA...
+            `;
 
             const strah = parseInt(document.getElementById('strah_nivo').value);
             const usteda = parseInt(document.getElementById('usteda_procent').value);
             const ocekivanje = document.querySelector('input[name="ocekivanje"]:checked').value;
             
-            // IDA INDEX (0-100)
+            // Kalkulacija Indeksa Adaptacije (IDA)
             let ida = 35 + (usteda * 0.6) + (odabraniAlati.length * 4) - (strah * 5);
             ida = Math.min(Math.max(ida, 0), 100);
 
@@ -216,26 +229,43 @@
                 ai_iq_score: ida.toFixed(0)
             };
 
-            try {
-                const res = await fetch('https://ai-mapa-bih-1.onrender.com/submit-survey', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                
-                if(res.ok) {
-                    localStorage.setItem('anketa_sent', 'true');
-                    document.getElementById('iq_score').innerText = ida.toFixed(0);
-                    document.getElementById('hvala_msg').innerText = `Kao ${data.struka} iz općine ${data.opcina}, pomogli ste u definisanju digitalne mape BiH. Vaš doprinos je anoniman i dragocjen.`;
-                    nextStep(4);
-                } else {
-                    throw new Error("Greška na serveru");
+            // Retry logika za Render (Besplatni tier)
+            let pokusaj = 0;
+            const maxPokusaja = 3;
+
+            while (pokusaj < maxPokusaja) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 50000); // 50 sekundi timeout
+
+                    const res = await fetch('https://ai-mapa-bih-1.onrender.com/submit-survey', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(data),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+
+                    if(res.ok) {
+                        localStorage.setItem('anketa_sent', 'true');
+                        document.getElementById('iq_score').innerText = ida.toFixed(0);
+                        document.getElementById('hvala_msg').innerText = `Kao ${data.struka} iz općine ${data.opcina}, doprinijeli ste mapiranju digitalnog razvoja BiH. Vaš IDA rezultat je spreman.`;
+                        nextStep(4);
+                        return; // Završeno uspješno
+                    }
+                } catch (e) {
+                    pokusaj++;
+                    console.warn(`Pokušaj ${pokusaj} neuspješan. Server se budi...`);
+                    btn.innerHTML = `RE-POKUŠAJ (${pokusaj}/${maxPokusaja})...`;
+                    await new Promise(r => setTimeout(r, 3000)); // Čekaj 3 sekunde prije novog pokušaja
                 }
-            } catch (e) {
-                alert("Greška: Server nije odgovorio na vrijeme. Pokušajte ponovo za 10 sekundi.");
-                btn.disabled = false;
-                btn.innerText = "Pokušaj ponovo";
             }
+
+            // Ako nakon 3 pokušaja ne radi
+            alert("Server je trenutno zauzet ili se sporo budi. Molimo kliknite 'Pošalji' ponovo za 10 sekundi.");
+            btn.disabled = false;
+            btn.innerHTML = `<span>Pokušaj ponovo</span>`;
         }
     </script>
 </body>
