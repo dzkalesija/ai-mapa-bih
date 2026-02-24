@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, Text
+from sqlalchemy import create_engine, Column, Integer, String, Float, Text
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 DATABASE_URL = "sqlite:///./ai_istrazivanje_v3.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
@@ -16,8 +16,8 @@ class SurveyEntry(Base):
     entitet = Column(String)
     opcina = Column(String)
     struka = Column(String)
-    specificni_odgovori = Column(Text, nullable=True) 
-    alati = Column(String) 
+    specificni_odgovori = Column(Text)
+    alati = Column(String)
     ustedjeno_vrijeme = Column(Integer)
     uticaj_na_posao = Column(String)
     ai_iq_score = Column(Float)
@@ -35,35 +35,23 @@ class SurveyCreate(BaseModel):
     ai_iq_score: float
 
 app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 def get_db():
     db = SessionLocal()
     try: yield db
     finally: db.close()
 
-@app.get("/")
-def home():
-    return {"status": "Aktivan"}
-
 @app.post("/submit-survey")
 async def submit_survey(entry: SurveyCreate, db: Session = Depends(get_db)):
-    try:
-        db_entry = SurveyEntry(**entry.dict())
-        db.add(db_entry)
-        db.commit()
-        return {"status": "success"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+    db_entry = SurveyEntry(**entry.dict())
+    db.add(db_entry)
+    db.commit()
+    return {"status": "success"}
 
 @app.get("/admin-all")
 def get_all(db: Session = Depends(get_db)):
     return db.query(SurveyEntry).all()
+
+@app.get("/")
+def home(): return {"status": "Online"}

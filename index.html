@@ -3,74 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nacionalno istraživanje AI u BiH</title>
+    <title>AI Mapa BiH - Nacionalno Istraživanje</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; color: white; font-family: sans-serif; }
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; font-weight: 300; }
         .step { display: none; }
-        .step.active { display: block; }
-        .selected { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.2); }
+        .step.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-blue { background: linear-gradient(90deg, #2563eb, #3b82f6); transition: all 0.3s; }
+        .btn-blue:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px #3b82f6; }
+        .selected { border-color: #3b82f6 !important; background: rgba(59, 130, 246, 0.2); }
+        select, input { font-weight: 400; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-3xl mx-auto bg-slate-800/40 p-8 rounded-3xl border border-slate-700 shadow-2xl">
+<body class="p-4 md:p-12">
+
+    <div class="max-w-4xl mx-auto card p-8 md:p-12 rounded-[2rem] shadow-2xl">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl font-semibold tracking-tighter text-blue-400 uppercase">Nacionalni AI Monitor BiH</h1>
+            <p class="text-slate-500 text-sm mt-2 uppercase tracking-[0.2em]">Studija digitalne transformacije društva</p>
+        </header>
+
         <form id="aiSurvey">
             <div class="step active" id="step1">
-                <h2 class="text-xl font-bold mb-6">1. Profil</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <select id="entitet" onchange="azurirajOpcine()" class="p-4 rounded-xl bg-slate-900 border border-slate-700">
-                        <option value="">Odaberi Entitet...</option>
-                        <option value="FBiH">Federacija BiH</option>
-                        <option value="RS">Republika Srpska</option>
-                        <option value="BD">Brčko Distrikt</option>
-                    </select>
-                    <select id="opcina" class="p-4 rounded-xl bg-slate-900 border border-slate-700">
-                        <option value="">Prvo odaberi entitet...</option>
-                    </select>
-                </div>
-                <select id="struka" onchange="pokaziPut()" class="w-full p-4 mb-6 rounded-xl bg-slate-900 border border-slate-700 text-blue-400 font-bold">
-                    <option value="">Odaberite ulogu...</option>
-                    <option value="it_sektor">IT stručnjak / Inženjer</option>
-                    <option value="obrazovanje">Obrazovanje / Nauka</option>
-                    <option value="student">Student</option>
-                    <option value="biznis">Biznis / Administracija</option>
-                    <option value="ostalo">Ostalo</option>
-                </select>
-                <button type="button" onclick="nextStep(2)" class="w-full bg-blue-600 p-4 rounded-2xl font-bold">NASTAVI</button>
-            </div>
-
-            <div class="step" id="step2">
-                <h2 class="text-xl font-bold mb-6">2. Specifična primjena</h2>
-                <div id="dinamicki_sadrzaj"></div>
-                <button type="button" onclick="nextStep(3)" class="w-full mt-8 bg-blue-600 p-4 rounded-2xl font-bold">DALJE</button>
-            </div>
-
-            <div class="step" id="step3">
-                <h2 class="text-xl font-bold mb-6">3. Barijere i Alati</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8" id="alati_grid"></div>
+                <h2 class="text-xl mb-8 flex items-center text-slate-300"><span class="mr-4 opacity-30 italic">01.</span> Osnovne Informacije</h2>
                 
-                <label class="block text-xs font-bold text-slate-500 mb-2">Ušteda vremena:</label>
-                <select id="usteda" class="w-full p-4 mb-6 bg-slate-900 border border-slate-700 rounded-xl">
-                    <option value="10">Do 10%</option>
-                    <option value="30">10% - 40%</option>
-                    <option value="60">Preko 50%</option>
-                </select>
-
-                <div class="mb-8">
-                    <label class="block text-xs font-bold text-slate-500 mb-4">Očekivanje od AI:</label>
-                    <div class="space-y-2 text-sm">
-                        <label class="block"><input type="radio" name="ocekivanje" value="Pozitivan" checked> Povećanje produktivnosti</label>
-                        <label class="block"><input type="radio" name="ocekivanje" value="Negativan"> Prijetnja poslu</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-3">Entitet / Distrikt</label>
+                        <select id="entitet" onchange="azurirajOpcine()" class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none focus:border-blue-500">
+                            <option value="">Odaberi...</option>
+                            <option value="FBiH">Federacija BiH</option>
+                            <option value="RS">Republika Srpska</option>
+                            <option value="BD">Brčko Distrikt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-3">Općina / Grad</label>
+                        <select id="opcina" class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none">
+                            <option value="">Prvo odaberi entitet...</option>
+                        </select>
                     </div>
                 </div>
 
-                <button type="button" id="submitBtn" onclick="submitData()" class="w-full bg-emerald-600 p-5 rounded-2xl font-black uppercase">POŠALJI I IZRAČUNAJ</button>
+                <div class="mb-10">
+                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-3">Sektor Djelovanja</label>
+                    <select id="struka" onchange="pokaziPut()" class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none text-blue-400 font-medium">
+                        <option value="">Odaberite sektor...</option>
+                        <option value="zdravstvo">Zdravstvo / Medicina</option>
+                        <option value="it_sektor">IT / Tehnologija / Inženjering</option>
+                        <option value="obrazovanje">Obrazovanje / Nauka</option>
+                        <option value="javna_uprava">Javna uprava / Socijalne službe</option>
+                        <option value="industrija">Industrija / Proizvodnja / Energetika</option>
+                        <option value="biznis">Privreda / Finansije / Marketing</option>
+                        <option value="student">Studenti i mladi</option>
+                    </select>
+                </div>
+
+                <button type="button" onclick="nextStep(2)" class="w-full btn-blue p-5 rounded-2xl font-semibold uppercase tracking-widest text-sm">Dalje</button>
+            </div>
+
+            <div class="step" id="step2">
+                <h2 class="text-xl mb-8 flex items-center text-slate-300"><span class="mr-4 opacity-30 italic">02.</span> Specifična Primjena u Sektoru</h2>
+                <div id="dinamicki_sadrzaj" class="space-y-3 mb-10"></div>
+                <button type="button" onclick="nextStep(3)" class="w-full btn-blue p-5 rounded-2xl font-semibold uppercase tracking-widest text-sm text-center">Analiza Barijera</button>
+            </div>
+
+            <div class="step" id="step3">
+                <h2 class="text-xl mb-8 flex items-center text-slate-300"><span class="mr-4 opacity-30 italic">03.</span> AI Alati i Očekivanja</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10" id="alati_grid"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-4">Ušteda vremena kroz AI</label>
+                        <select id="usteda" class="w-full bg-slate-900/50 border border-slate-700 p-4 rounded-2xl outline-none">
+                            <option value="5">Marginalna (do 5%)</option>
+                            <option value="20">Značajna (5% - 25%)</option>
+                            <option value="50">Visoka (25% - 50%)</option>
+                            <option value="70">Radikalna (preko 50%)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 mb-4">Stav prema budućnosti</label>
+                        <div class="flex gap-4">
+                            <label class="flex-1 bg-slate-900/50 border border-slate-700 p-4 rounded-2xl cursor-pointer text-xs flex items-center">
+                                <input type="radio" name="ocekivanje" value="Pozitivan" checked class="mr-3"> Optimizam
+                            </label>
+                            <label class="flex-1 bg-slate-900/50 border border-slate-700 p-4 rounded-2xl cursor-pointer text-xs flex items-center">
+                                <input type="radio" name="ocekivanje" value="Negativan" class="mr-3"> Oprez
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="submitBtn" onclick="submitData()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-6 rounded-3xl font-bold uppercase tracking-[0.2em] transition-all shadow-xl shadow-emerald-900/20 text-white">
+                    Pošalji podatke
+                </button>
             </div>
 
             <div class="step text-center" id="step4">
-                <h1 class="text-3xl font-bold mb-4">VAŠ IDA REZULTAT:</h1>
-                <div class="text-7xl font-black text-blue-500 mb-8" id="iq_score">0</div>
-                <button type="button" onclick="location.reload()" class="underline text-slate-500">Novi unos</button>
+                <div class="mb-6 opacity-40 italic uppercase tracking-[0.5em] text-xs">Vaš rezultat je upisan</div>
+                <h1 class="text-7xl font-light text-blue-400 mb-4" id="iq_score">0</h1>
+                <p class="text-slate-500 uppercase text-[10px] tracking-widest mb-12 italic" id="hvala_msg"></p>
+                <button type="button" onclick="location.reload()" class="border-b border-slate-700 pb-1 text-slate-500 text-xs hover:text-white uppercase">Novi unos</button>
             </div>
         </form>
     </div>
@@ -89,11 +127,11 @@
             if(e && opcineBiH[e]) opcineBiH[e].sort().forEach(o => s.innerHTML += `<option value="${o}">${o}</option>`);
         }
 
-        const alati = ["ChatGPT", "DeepSeek", "Claude AI", "Gemini", "Midjourney", "GitHub Copilot"];
+        const alati = ["ChatGPT", "DeepSeek", "Claude AI", "Gemini", "Midjourney", "DALL-E", "Copilot", "Perplexity", "Sora", "ElevenLabs", "Canva AI", "Cursor"];
         let odabraniAlati = [];
         alati.forEach(a => {
             const d = document.createElement('div');
-            d.className = "p-2 bg-slate-900 border border-slate-700 rounded-xl text-[10px] text-center cursor-pointer font-bold";
+            d.className = "p-3 bg-slate-900/50 border border-slate-800 rounded-xl text-[10px] text-center cursor-pointer transition-all uppercase tracking-tighter font-semibold";
             d.innerText = a;
             d.onclick = function() { this.classList.toggle('selected'); if(odabraniAlati.includes(a)) odabraniAlati = odabraniAlati.filter(x=>x!==a); else odabraniAlati.push(a); };
             document.getElementById('alati_grid').appendChild(d);
@@ -103,32 +141,45 @@
             const s = document.getElementById('struka').value;
             const k = document.getElementById('dinamicki_sadrzaj');
             k.innerHTML = '';
-            const opcije = s === 'it_sektor' ? ["Kodiranje", "Debugiranje"] : ["Pisanje", "Analiza"];
-            opcije.forEach(o => k.innerHTML += `<label class="block p-4 bg-slate-900 mb-2 rounded-xl border border-slate-700 text-sm"><input type="checkbox" name="spec" value="${o}" class="mr-3"> ${o}</label>`);
+            let opcije = [];
+            
+            if(s === 'zdravstvo') opcije = ["Dijagnostika (AI slikovna)", "Analiza medicinskih podataka", "Personalizovani planovi liječenja", "Administracija pacijenata"];
+            else if(s === 'industrija') opcije = ["Prediktivno održavanje mašina", "Optimizacija lanca snabdijevanja", "Kontrola kvaliteta (Computer Vision)", "Energetska efikasnost"];
+            else if(s === 'javna_uprava') opcije = ["Digitalni servisi za građane", "Socijalno mapiranje", "Automatizacija dokumenata", "Analiza javnog mnijenja"];
+            else if(s === 'obrazovanje') opcije = ["Personalizovano učenje", "Automatizacija testiranja", "Istraživački rad", "Kreirač sadržaja"];
+            else if(s === 'it_sektor') opcije = ["Generisanje koda", "Arhitektura sistema", "Sajber sigurnost", "Testiranje"];
+            else opcije = ["Analiza tržišta", "Copywriting", "Pretraga informacija", "Kreativna vizuelizacija"];
+
+            opcije.forEach(o => {
+                k.innerHTML += `<label class="block p-4 bg-slate-900/30 border border-slate-800 rounded-2xl cursor-pointer hover:bg-slate-800/50 text-xs tracking-wide">
+                    <input type="checkbox" name="spec" value="${o}" class="mr-3"> ${o}
+                </label>`;
+            });
         }
 
         function nextStep(s) {
             document.querySelectorAll('.step').forEach(x => x.classList.remove('active'));
             document.getElementById('step'+s).classList.add('active');
+            window.scrollTo(0,0);
         }
 
         async function submitData() {
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "SLANJE...";
+            btn.innerText = "SINKRONIZACIJA...";
 
             const ustedaVal = parseInt(document.getElementById('usteda').value);
-            let score = 30 + (ustedaVal * 0.5) + (odabraniAlati.length * 5);
+            let score = 35 + (ustedaVal * 0.4) + (odabraniAlati.length * 3.5);
             
             const data = {
                 entitet: document.getElementById('entitet').value,
                 opcina: document.getElementById('opcina').value,
-                struka: document.getElementById('struka').value,
+                struka: document.getElementById('struka').options[document.getElementById('struka').selectedIndex].text,
                 specificni_odgovori: Array.from(document.querySelectorAll('input[name="spec"]:checked')).map(x=>x.value).join(", "),
                 alati: odabraniAlati.join(", "),
                 ustedjeno_vrijeme: ustedaVal,
                 uticaj_na_posao: document.querySelector('input[name="ocekivanje"]:checked').value,
-                ai_iq_score: score
+                ai_iq_score: Math.min(score, 100).toFixed(1)
             };
 
             try {
@@ -137,11 +188,13 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                document.getElementById('iq_score').innerText = score.toFixed(0);
+                document.getElementById('iq_score').innerText = data.ai_iq_score;
+                document.getElementById('hvala_msg').innerText = `Podaci za općinu ${data.opcina} su procesirani.`;
                 nextStep(4);
             } catch (e) {
-                alert("Greška. Probajte opet.");
+                alert("Server je u 'sleep' modu. Sačekajte 5 sekundi pa kliknite ponovo.");
                 btn.disabled = false;
+                btn.innerText = "POKUŠAJ PONOVNO";
             }
         }
     </script>
