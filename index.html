@@ -3,194 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mapa BiH | Istraživanje 3.0</title>
+    <title>Nacionalno istraživanje o primjeni AI u BiH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .step { display: none; transition: all 0.5s ease; }
-        .step.active { display: block; animation: fadeIn 0.5s forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-        .selectable { cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
-        .selectable.selected { border-color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .selected { border-color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.1); }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4 md:p-10 flex flex-col min-h-screen">
 
-    <div class="max-w-2xl mx-auto bg-slate-800/50 p-8 rounded-3xl border border-slate-700 shadow-2xl">
-        <div class="w-full bg-slate-700 h-1.5 rounded-full mb-8">
-            <div id="progress" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 25%"></div>
+    <div class="max-w-3xl mx-auto bg-slate-800/40 p-8 rounded-3xl border border-slate-700 shadow-xl flex-grow">
+        <div class="mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-xl font-bold text-blue-400 uppercase tracking-tight">Akademsko istraživanje</h1>
+            <p class="text-slate-400 text-sm italic text-balance">Status i potencijal primjene vještačke inteligencije u Bosni i Hercegovini</p>
         </div>
 
         <form id="aiSurvey">
             <div class="step active" id="step1">
-                <h1 class="text-3xl font-black mb-2 italic">KO VRŠI REVOLUCIJU? 🚀</h1>
-                <p class="text-slate-400 mb-6 font-medium">Započnite profilisanje vašeg AI uticaja.</p>
-                
-                <div class="space-y-4">
+                <h2 class="text-2xl font-bold mb-6">1. Demografska lokacija</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Entitet</label>
-                        <select id="entitet" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:border-blue-500">
-                            <option>Federacija BiH</option>
-                            <option>Republika Srpska</option>
-                            <option>Brčko Distrikt</option>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Entitet / Distrikt</label>
+                        <select id="entitet" onchange="azurirajOpcine()" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:ring-2 ring-blue-500 text-white">
+                            <option value="">Odaberite...</option>
+                            <option value="FBiH">Federacija BiH</option>
+                            <option value="RS">Republika Srpska</option>
+                            <option value="BD">Brčko Distrikt</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Općina / Grad</label>
-                        <input type="text" id="opcina" placeholder="Npr. Sarajevo, Banja Luka, Tuzla..." class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Vaša primarna uloga</label>
-                        <select id="struka" onchange="pokaziPut()" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none text-blue-400 font-bold">
-                            <option value="">Odaberite...</option>
-                            <option value="ucenik_os">Učenik (Osnovna škola)</option>
-                            <option value="ucenik_ss">Učenik (Srednja škola)</option>
-                            <option value="student">Student</option>
-                            <option value="proizvodnja">Radnik u proizvodnji / Tehnika</option>
-                            <option value="biznis">Vlasnik biznisa / Menadžer</option>
-                            <option value="it_sektor">IT Sektor / Programer / Dizajner</option>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Općina / Grad</label>
+                        <select id="opcina" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:ring-2 ring-blue-500 text-white">
+                            <option value="">Prvo odaberite entitet...</option>
                         </select>
                     </div>
                 </div>
-                <button type="button" onclick="nextStep(2)" class="w-full mt-8 btn-gradient p-4 rounded-xl font-bold uppercase tracking-wider">Dalje <i class="fas fa-arrow-right ml-2"></i></button>
+                
+                <div class="mt-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Primarni profesionalni profil</label>
+                    <select id="struka" onchange="pokaziPut()" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-700 outline-none focus:ring-2 ring-blue-500">
+                        <option value="">Odaberite profil...</option>
+                        <option value="ucenik_os">Učenik (Osnovna škola)</option>
+                        <option value="ucenik_ss">Učenik (Srednja škola)</option>
+                        <option value="student">Student</option>
+                        <option value="proizvodnja">Industrija / Tehnika / Proizvodnja</option>
+                        <option value="biznis">Menadžment / Preduzetništvo</option>
+                        <option value="it_sektor">IT Sektor / Digitalni kreativci</option>
+                        <option value="ostalo">Ostalo / Nezaposlen</option>
+                    </select>
+                </div>
+                <button type="button" onclick="nextStep(2)" class="w-full mt-8 bg-blue-600 p-4 rounded-xl font-bold uppercase tracking-widest hover:bg-blue-500 transition-all">Nastavi</button>
             </div>
 
             <div class="step" id="step2">
-                <div id="put_skola" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-400">Školski AI Asistent 📚</h2>
-                    <p class="mb-4 text-slate-400">U kojim predmetima najviše koristiš AI?</p>
-                    <div class="grid grid-cols-1 gap-2" id="predmeti_lista">
-                        </div>
-                </div>
-
-                <div id="put_proizvodnja" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-orange-400">Industrija 4.0 🛠️</h2>
-                    <p class="mb-4 text-slate-400">Tehnologija na radnom mjestu:</p>
-                    <div class="space-y-3">
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="ind" value="PLC"> Mašine sa PLC automatikom</label>
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="ind" value="Prediktivno"> AI predviđanje kvarova</label>
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="ind" value="Senzori"> IoT i pametni senzori</label>
-                    </div>
-                </div>
-
-                <div id="put_biznis" class="hidden">
-                    <h2 class="text-2xl font-bold mb-4 text-emerald-400">Biznis Strategija 💼</h2>
-                    <p class="mb-4 text-slate-400">Fokus uvođenja AI tehnologije:</p>
-                    <div class="space-y-3">
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="biz" value="ROI"> Automatizacija procesa (ROI)</label>
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="biz" value="Marketing"> Personalizovani marketing</label>
-                        <label class="block p-4 bg-slate-900 rounded-xl cursor-pointer border border-slate-700"><input type="checkbox" name="biz" value="Analytics"> Dubinska tržišna analitika</label>
-                    </div>
-                </div>
-
-                <button type="button" onclick="nextStep(3)" class="w-full mt-8 btn-gradient p-4 rounded-xl font-bold uppercase tracking-wider">Nastavi <i class="fas fa-arrow-right ml-2"></i></button>
+                <div id="dinamicki_sadrzaj"></div>
+                <button type="button" onclick="nextStep(3)" class="w-full mt-8 bg-blue-600 p-4 rounded-xl font-bold uppercase tracking-widest">Dalje</button>
             </div>
 
             <div class="step" id="step3">
-                <h1 class="text-3xl font-black mb-6">VAŠ ARSENAL 🛠️</h1>
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'ChatGPT')">ChatGPT (Plus/Free)</div>
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'DeepSeek')">DeepSeek (R1/V3)</div>
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'Claude')">Claude 3.5</div>
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'Midjourney')">Midjourney / DALL-E</div>
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'Copilot')">GitHub Copilot / Cursor</div>
-                    <div class="p-3 bg-slate-900 border border-slate-700 rounded-xl selectable text-sm text-center" onclick="toggleSelection(this, 'Sora')">Sora / Runway Video</div>
-                </div>
-
-                <div class="space-y-4">
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase">Koliko sati sedmično uštedite pomoću AI?</label>
+                <h2 class="text-2xl font-bold mb-6 italic text-center text-blue-400 uppercase">Tehnološki arsenal</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8" id="alati_grid"></div>
+                
+                <div class="space-y-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase text-center italic">Procjena sedmične uštede vremena (h)</label>
                     <input type="range" id="usteda" min="0" max="40" value="5" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
-                    <div class="text-center font-bold text-blue-400"><span id="usteda_val">5</span> sati</div>
+                    <div class="text-center font-bold text-blue-400 mt-2"><span id="usteda_val">5</span> sati</div>
 
-                    <label class="flex items-center space-x-3 p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl cursor-pointer">
+                    <label class="flex items-center space-x-3 p-4 bg-slate-900 border border-slate-700 rounded-xl cursor-pointer">
                         <input type="checkbox" id="pretplata" class="w-5 h-5">
-                        <span class="font-bold">Plaćam Pro/Premium pretplatu</span>
+                        <span class="text-sm font-medium">Koristim napredne pretplaćene servise (Pro/Premium)</span>
                     </label>
                 </div>
 
-                <button type="button" onclick="submitData()" class="w-full mt-8 bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-black uppercase tracking-widest transition-all">Završi i izračunaj IQ <i class="fas fa-check-circle ml-2"></i></button>
+                <button type="button" onclick="submitData()" class="w-full mt-8 bg-emerald-600 hover:bg-emerald-500 p-4 rounded-xl font-bold uppercase tracking-widest transition-all">Pošalji podatke</button>
             </div>
 
             <div class="step text-center" id="step4">
-                <div class="mb-6 text-6xl">🧠</div>
-                <h1 class="text-4xl font-black mb-2">VAŠ AI IQ: <span id="iq_score" class="text-blue-500">0</span></h1>
-                <p id="iq_desc" class="text-slate-400 mb-8 italic"></p>
-                <div class="p-6 bg-slate-900 rounded-3xl border border-slate-700 mb-6">
-                    <p class="text-sm text-slate-500 uppercase font-bold mb-2">Vaš doprinos mapi</p>
-                    <p id="hvala_msg" class="text-lg font-medium"></p>
+                <div class="text-5xl mb-6">📈</div>
+                <h1 class="text-3xl font-bold mb-2 uppercase">Indeks adaptacije</h1>
+                <div class="text-7xl font-black text-blue-500 mb-8" id="iq_score">0</div>
+                <div class="p-6 bg-slate-900 rounded-2xl border border-slate-700">
+                    <p id="hvala_msg" class="text-sm font-medium text-slate-300"></p>
                 </div>
-                <button type="button" onclick="location.reload()" class="text-blue-400 font-bold hover:underline">Ponovi testiranje</button>
+                <button type="button" onclick="location.reload()" class="mt-8 text-slate-500 text-xs hover:underline">Novi unos</button>
             </div>
         </form>
     </div>
 
-    <script>
-        let odabraniAlati = [];
+    <footer class="mt-8 text-center text-[10px] text-slate-600 uppercase tracking-[0.3em] space-y-1">
+        <p>Autor istraživanja: <span class="text-slate-400 underline">VAŠE IME I PREZIME</span></p>
+        <p>Inženjerska podrška: <span class="text-slate-400">Gemini AI</span></p>
+    </footer>
 
-        function toggleSelection(el, alat) {
-            el.classList.toggle('selected');
-            if(odabraniAlati.includes(alat)) {
-                odabraniAlati = odabraniAlati.filter(a => a !== alat);
-            } else {
-                odabraniAlati.push(alat);
+    <script>
+        const podaci = {
+            "FBiH": ["Banovići", "Bihać", "Bosanska Krupa", "Bosanski Petrovac", "Bosansko Grahovo", "Breza", "Bugojno", "Busovača", "Bužim", "Cazin", "Čapljina", "Čelić", "Čitluk", "Drvar", "Doboj Istok", "Doboj Jug", "Dobretići", "Domaljevac-Šamac", "Donji Vakuf", "Foča-Ustikolina", "Fojnica", "Glamoč", "Goražde", "Gornji Vakuf-Uskoplje", "Gračanica", "Gradačac", "Grude", "Hadžići", "Ilijaš", "Jablanica", "Jajce", "Kakanj", "Kalesija", "Kiseljak", "Kladanj", "Ključ", "Konjic", "Kupres", "Livno", "Ljubuški", "Lukavac", "Maglaj", "Mostar", "Neum", "Novi Travnik", "Odžak", "Olovo", "Orašje", "Pale-Prača", "Posušje", "Prozor-Rama", "Ravno", "Sanski Most", "Sapna", "Sarajevo-Centar", "Sarajevo-Novi Grad", "Sarajevo-Novo Sarajevo", "Sarajevo-Stari Grad", "Stolac", "Srebrenik", "Tešanj", "Tomislavgrad", "Travnik", "Trnovo", "Tuzla", "Usora", "Vareš", "Velika Kladuša", "Visoko", "Vitez", "Vogošća", "Zavidovići", "Zenica", "Žepče", "Živinice"],
+            "RS": ["Banja Luka", "Berkovići", "Bijeljina", "Bileća", "Bratunac", "Brod", "Čajniče", "Čelinac", "Derventa", "Doboj", "Donji Žabar", "Foča", "Gacko", "Gradiška", "Han Pijesak", "Istočna Ilidža", "Istočni Drvar", "Istočni Mostar", "Istočni Stari Grad", "Istočno Novo Sarajevo", "Jezero", "Kalinovik", "Kneževo", "Kostajnica", "Kotor Varoš", "Kozarska Dubica", "Krupa na Uni", "Kupres", "Laktaši", "Lopare", "Ljubinje", "Milići", "Modriča", "Mrkonjić Grad", "Nevesinje", "Novi Grad", "Novo Goražde", "Osmaci", "Oštra Luka", "Pale", "Pelagićevo", "Petrovac", "Petrovo", "Prijedor", "Prnjavor", "Ribnik", "Rogatica", "Rudo", "Sokolac", "Srbac", "Srebrenica", "Stanari", "Šamac", "Šekovići", "Šipovo", "Teslić", "Trebinje", "Trnovo", "Ugljevik", "Višegrad", "Vlasenica", "Vukosavlje", "Zavidovići", "Zvornik"],
+            "BD": ["Brčko Distrikt"]
+        };
+
+        function azurirajOpcine() {
+            const entitet = document.getElementById('entitet').value;
+            const opcinaSelect = document.getElementById('opcina');
+            opcinaSelect.innerHTML = '<option value="">Odaberite općinu...</option>';
+            if(entitet && podaci[entitet]) {
+                podaci[entitet].sort().forEach(o => {
+                    opcinaSelect.innerHTML += `<option value="${o}">${o}</option>`;
+                });
             }
         }
 
-        document.getElementById('usteda').oninput = function() {
-            document.getElementById('usteda_val').innerText = this.value;
-        }
+        const alati = ["ChatGPT", "Claude AI", "Gemini", "DeepSeek", "Midjourney", "DALL-E", "GitHub Copilot", "Cursor", "Canva AI", "Sora/Runway Video", "ElevenLabs", "Perplexity"];
+        const grid = document.getElementById('alati_grid');
+        let odabraniAlati = [];
+
+        alati.forEach(a => {
+            const div = document.createElement('div');
+            div.className = "p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-center cursor-pointer hover:border-blue-500 transition-all";
+            div.innerText = a;
+            div.onclick = function() {
+                this.classList.toggle('selected');
+                if(odabraniAlati.includes(a)) odabraniAlati = odabraniAlati.filter(i => i !== a);
+                else odabraniAlati.push(a);
+            };
+            grid.appendChild(div);
+        });
+
+        document.getElementById('usteda').oninput = function() { document.getElementById('usteda_val').innerText = this.value; }
 
         function pokaziPut() {
             const struka = document.getElementById('struka').value;
-            document.getElementById('put_skola').classList.add('hidden');
-            document.getElementById('put_proizvodnja').classList.add('hidden');
-            document.getElementById('put_biznis').classList.add('hidden');
+            const kont = document.getElementById('dinamicki_sadrzaj');
+            kont.innerHTML = '';
+            let naslov = "", opis = "", opcije = [];
 
-            const lista = document.getElementById('predmeti_lista');
-            lista.innerHTML = '';
-
-            if(struka.includes('ucenik') || struka === 'student') {
-                document.getElementById('put_skola').classList.remove('hidden');
-                let predmeti = ["Matematika", "Fizika/Hemija", "Maternji jezik", "Strani jezici", "Historija/Geografija"];
-                if(struka === 'ucenik_ss' || struka === 'student') predmeti.push("CAD / Programiranje", "Elektrotehnika/Mehanika");
-                
-                predmeti.forEach(p => {
-                    lista.innerHTML += `<label class="block p-3 bg-slate-900 rounded-lg border border-slate-700 cursor-pointer"><input type="checkbox" name="spec" value="${p}"> ${p}</label>`;
-                });
+            if(struka.includes('ucenik')) {
+                naslov = "Fokus na obrazovanje"; opis = "Predmeti u kojima Vam AI pomaže:";
+                opcije = ["Matematika", "Fizika", "Maternji jezik", "Strani jezici", "Informatika", "Geografija/Historija"];
+                if(struka === 'ucenik_ss') opcije.push("CAD/Tehničko crtanje", "Elektrotehnika", "Programiranje");
             } else if(struka === 'proizvodnja') {
-                document.getElementById('put_proizvodnja').classList.remove('hidden');
+                naslov = "Tehnički/Industrijski sektor"; opis = "Tehnologija na radnom mjestu:";
+                opcije = ["PLC Automatizacija", "Senzorska dijagnostika", "AI optimizacija procesa", "Održavanje mašina", "Robotički sistemi"];
             } else if(struka === 'biznis') {
-                document.getElementById('put_biznis').classList.remove('hidden');
+                naslov = "Poslovna administracija"; opis = "Primarna svrha korištenja:";
+                opcije = ["Automatizacija izvještaja", "Analiza prodaje", "Marketing strategije", "Komunikacija sa klijentima", "Finansijsko planiranje"];
+            } else if(struka === 'it_sektor') {
+                naslov = "Digitalni razvoj"; opis = "Specifična primjena:";
+                opcije = ["Pisanje koda (Coding)", "Debugiranje", "UI/UX dizajn", "Generisanje dokumentacije", "Video/Foto editovanje"];
+            }
+
+            if(naslov) {
+                kont.innerHTML = `<h2 class="text-2xl font-bold mb-2">${naslov}</h2><p class="mb-6 text-slate-400">${opis}</p>`;
+                opcije.forEach(o => {
+                    kont.innerHTML += `<label class="block p-4 bg-slate-900 border border-slate-700 rounded-xl mb-3 cursor-pointer hover:bg-slate-800 transition-all"><input type="checkbox" name="spec" value="${o}" class="mr-3"> ${o}</label>`;
+                });
             }
         }
 
         function nextStep(s) {
             document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
             document.getElementById('step' + s).classList.add('active');
-            document.getElementById('progress').style.width = (s * 25) + '%';
         }
 
         async function submitData() {
             const usteda = parseInt(document.getElementById('usteda').value);
             const pretplata = document.getElementById('pretplata').checked;
-            
-            // Kalkulacija AI IQ (3.0 Algoritam)
-            let score = 30 + (usteda * 2.5);
-            if(pretplata) score += 40;
-            if(odabraniAlati.includes('DeepSeek') || odabraniAlati.includes('Claude')) score += 15;
-            if(odabraniAlati.includes('Copilot') || odabraniAlati.includes('Sora')) score += 20;
-            if(score > 160) score = 160;
-
-            const specOdgovori = Array.from(document.querySelectorAll('input[name="spec"]:checked, input[name="ind"]:checked, input[name="biz"]:checked')).map(e => e.value);
+            let score = 30 + (usteda * 2.5) + (pretplata ? 30 : 0) + (odabraniAlati.length * 4);
+            if(score > 150) score = 150;
 
             const data = {
                 entitet: document.getElementById('entitet').value,
                 opcina: document.getElementById('opcina').value,
                 struka: document.getElementById('struka').options[document.getElementById('struka').selectedIndex].text,
-                pod_struka: document.getElementById('struka').value,
-                specificni_odgovori: specOdgovori.join(', '),
+                specificni_odgovori: Array.from(document.querySelectorAll('input[name="spec"]:checked')).map(e => e.value).join(', '),
                 alati: odabraniAlati.join(', '),
                 ustedjeno_vrijeme: usteda,
                 placa_pretplatu: pretplata,
@@ -198,25 +186,18 @@
                 ai_iq_score: score
             };
 
-            // PROMIJENITI LINK NA VAŠ RENDER LINK
-            const renderLink = 'https://ai-mapa-bih-1.onrender.com/submit-survey';
-
             try {
-                const res = await fetch(renderLink, {
+                const res = await fetch('https://ai-mapa-bih-1.onrender.com/submit-survey', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-
                 if(res.ok) {
                     document.getElementById('iq_score').innerText = score.toFixed(1);
-                    document.getElementById('iq_desc').innerText = score > 100 ? "Vi ste AI Pioneer! Vaša efikasnost je daleko iznad prosjeka regije." : "Solidno koristite AI, ali postoji ogroman prostor za automatizaciju.";
-                    document.getElementById('hvala_msg').innerText = `Hvala! Vaši podaci iz ${data.opcina} su uspješno dodani na digitalnu mapu BiH.`;
+                    document.getElementById('hvala_msg').innerText = `Zahvaljujemo na učešću. Vaši odgovori su zavedeni u bazu podataka za općinu ${data.opcina} i doprinose nacionalnom istraživanju digitalne transformacije.`;
                     nextStep(4);
                 }
-            } catch (err) {
-                alert("Greška pri slanju. Provjerite da li je server aktivan.");
-            }
+            } catch (e) { alert("Povezivanje sa serverom nije uspjelo."); }
         }
     </script>
 </body>
