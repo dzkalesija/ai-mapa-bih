@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, Text
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -29,7 +28,7 @@ class SurveyEntry(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# Pydantic Schemas - Ovdje smo dodali default vrijednosti da ne puca ako frontend ne pošalje polje
+# Pydantic Schemas - Postavljeno kao Optional da frontend ne bi pucao
 class SurveyCreate(BaseModel):
     entitet: str
     opcina: str
@@ -44,7 +43,7 @@ class SurveyCreate(BaseModel):
 
 app = FastAPI()
 
-# CORS je ispravno postavljen
+# CORS postavke su ključne da Render dozvoli tvojoj stranici slanje podataka
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -67,6 +66,7 @@ def home():
 @app.post("/submit-survey")
 def submit_survey(entry: SurveyCreate, db: Session = Depends(get_db)):
     try:
+        # Pretvaramo Pydantic model u rječnik i kreiramo unos u bazi
         db_entry = SurveyEntry(**entry.dict())
         db.add(db_entry)
         db.commit()
@@ -75,7 +75,3 @@ def submit_survey(entry: SurveyCreate, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/admin-all")
-def get_all(db: Session = Depends(get_db)):
-    return db.query(SurveyEntry).all()
